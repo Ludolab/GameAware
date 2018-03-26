@@ -23,10 +23,11 @@ public class GameLogic : MonoBehaviour {
 	struct ServerTowerInformation {
 		public int x;
 		public int y;
-        public int scale;
+        public int scaleX;
+        public int scaleY;
     }
     [Serializable]
-    struct ServerFireflies{
+    struct ServerTowers{
         public ServerTowerInformation[] items;
     }
 
@@ -44,7 +45,7 @@ public class GameLogic : MonoBehaviour {
 
     // This is the structure we will fill in as parameters for our broadcasted
     // metadata message.
-    ServerFireflies metadataUpdateParms = new ServerFireflies();
+    ServerTowers metadataUpdateParms = new ServerTowers();
 
 	void Start () {
         // make sure the unity game doesn't pause if we change focus, which we almost
@@ -75,7 +76,7 @@ public class GameLogic : MonoBehaviour {
         // The following section of code will let's the metadata system know that this
         // is the particular metadata we want to send down to the clients.
         /*
-         * for ( var k = 0; k < fireflies.Length; k++ ){
+        for ( var k = 0; k < fireflies.Length; k++ ){
             var screenPos = APG.Helper.ScreenPosition(mainCamera, fireflies[k]);
             metadataUpdateParms.items[k].x = (int)screenPos.x;
             metadataUpdateParms.items[k].y = (int)screenPos.y;
@@ -84,6 +85,6 @@ public class GameLogic : MonoBehaviour {
         */
         // And once we've filled up our metadata, this is how we tell the metadata system
         // that we want to broadcast that information.
-        networking.GetAudienceSys().WriteMetadata<ServerFireflies>("fireflies", metadataUpdateParms);
+        networking.GetAudienceSys().WriteMetadata<ServerTowers>("towers", metadataUpdateParms);
 	}
 }
