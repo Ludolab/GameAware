@@ -296,9 +296,15 @@ namespace TowerDefense.Towers
 			currentTowerLevel.SetAffectorState(initialise);
 		}
 
+<<<<<<< HEAD
         public Collider getCollider() 
         {
             return GetComponent<Collider>();
+=======
+        public Collider GetCollider()
+        {
+            return GetComponent<Collider>();
+>>>>>>> origin/master
         }
 	}
 }
