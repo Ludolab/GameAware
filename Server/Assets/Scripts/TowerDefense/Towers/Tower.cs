@@ -295,5 +295,10 @@ namespace TowerDefense.Towers
 			bool initialise = current == LevelState.AllEnemiesSpawned || current == LevelState.SpawningEnemies;
 			currentTowerLevel.SetAffectorState(initialise);
 		}
+
+        public Collider getCollider() 
+        {
+            return GetComponent<Collider>();
+        }
 	}
 }
