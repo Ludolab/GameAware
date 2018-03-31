@@ -90,7 +90,7 @@ public class GameLogic : MonoBehaviour
             towers[i] = towersObj[i].GetComponent<Tower>();
         }
 
-        for ( var k = 0; k < towers.Length; k++ ){
+        for ( var k = 0; k < towersObj.Length; k++ ){
 
             //var screenPos = APG.Helper.ScreenPosition(mainCamera, towers[k]);
 
