@@ -13,6 +13,10 @@
 using System;
 using UnityEngine;
 using TowerDefense.Towers;
+using TowerDefense.Towers.Data;
+using TowerDefense.Affectors;
+using ActionGameFramework.Health;
+using TowerDefense.Towers.Projectiles;
 
 public class GameLogic : MonoBehaviour
 {
@@ -28,6 +32,9 @@ public class GameLogic : MonoBehaviour
         public int y;
         public int scaleX;
         public int scaleY;
+        public float attack;
+        public float coolDown;
+        public float fireRate;
     }
     [Serializable]
     struct ServerTowers
@@ -58,25 +65,16 @@ public class GameLogic : MonoBehaviour
         Application.runInBackground = true;
 
         // we will be 
-        metadataUpdateParms.items = new ServerTowerInformation[towers.Length];
     }
 
     float time2 = 0;
     void FixedUpdate()
     {
-        // Move the camera around, changing both its position and orientation.
-        // The hardcode math here is the generate certain kinds of desired motion -
-        // it's not important that you understand how it works.
-        //time2 += .3f;
-        //mainCamera.transform.position = new Vector3(
-        //    400 + 100 * Mathf.Cos(time2 * .013f + 72) + 100 * Mathf.Cos(time2 * .0065f + 172),
-        //    225 + 80 * Mathf.Cos(time2 * .011f + 372) + 70 * Mathf.Cos(time2 * .0071f + 672),
-        //    -500 + 10 * Mathf.Cos(time2 * .0073f + 1372) + 8 * Mathf.Cos(time2 * .0087f + 1672)
-        //    );
-        //mainCamera.transform.rotation = Quaternion.Euler(new Vector3(
-        //    4 * Mathf.Cos(time2 * .013f + 172) + 3 * Mathf.Cos(time2 * .0065f + 1172),
-        //    3 * Mathf.Cos(time2 * .011f + 1372) + 2 * Mathf.Cos(time2 * .0071f + 1672),
-        //    0));
+        // The towers will be updating their positions and scale in their own update functions.
+        // The following section of code will let's the metadata system know that this
+        // is the particular metadata we want to send down to the clients.
+
+        metadataUpdateParms.items = new ServerTowerInformation[towers.Length];
 
         // The towers will be updating their positions and scale in their own update functions.
         // The following section of code will let's the metadata system know that this
@@ -95,6 +93,12 @@ public class GameLogic : MonoBehaviour
         for ( var k = 0; k < towers.Length; k++ ){
 
             //var screenPos = APG.Helper.ScreenPosition(mainCamera, towers[k]);
+
+            /* use the getcollider function and then get the 8 coords to enter into the 
+             * worldtoscreenfunc and then get the top left (max x and min y) 
+             * Also get the bottom right corner and pass into the for loop in line 85. 
+             * Scale is abs(bottomright-topleft)
+             */
 
             Collider col = towers[k].getCollider();
 
@@ -138,14 +142,17 @@ public class GameLogic : MonoBehaviour
             metadataUpdateParms.items[k].scaleX = (int)Mathf.Abs(bottomRightX - topLeftX);
             metadataUpdateParms.items[k].scaleY = (int)Mathf.Abs(bottomRightY - topLeftY);
 
-            /* metadataUpdateParms.items[k].x = (int)screenPos.x;
-            metadataUpdateParms.items[k].y = (int)screenPos.y;
-            metadataUpdateParms.items[k].scale = (int)(10000 * towers[k].transform.localScale.x / 48f);
-            */
+            /* Get Tower Information */
+            TowerLevelData data = towers[k].GetComponentInChildren<TowerLevel>().levelData;
+            AttackAffector attack = towers[k].GetComponentInChildren<AttackAffector>();
+            metadataUpdateParms.items[k].attack = attack.projectile.GetComponent<Damager>().damage;
+            metadataUpdateParms.items[k].coolDown = attack.projectile.GetComponent<HitscanAttack>().delay;
+            metadataUpdateParms.items[k].fireRate = attack.fireRate;
         }
-       
+
         // And once we've filled up our metadata, this is how we tell the metadata system
         // that we want to broadcast that information.
         networking.GetAudienceSys().WriteMetadata<ServerTowers>("towers", metadataUpdateParms);
     }
+
 }
