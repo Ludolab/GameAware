@@ -76,15 +76,31 @@ public class GameLogic : MonoBehaviour
 
         metadataUpdateParms.items = new ServerTowerInformation[towers.Length];
 
-        for (var k = 0; k < towers.Length; k++)
+        // The towers will be updating their positions and scale in their own update functions.
+        // The following section of code will let's the metadata system know that this
+        // is the particular metadata we want to send down to the clients.
+
+        //dyanmically get the towers that exist. Update the tower array
+
+        GameObject[] towersObj = GameObject.FindGameObjectsWithTag("Tower");
+        towers = new Tower[24];
+
+        for (var i = 0; i < towersObj.Length; i++)
         {
+            towers[i] = towersObj[i].GetComponent<Tower>();
+        }
+
+        for ( var k = 0; k < towers.Length; k++ ){
+
+            //var screenPos = APG.Helper.ScreenPosition(mainCamera, towers[k]);
+
             /* use the getcollider function and then get the 8 coords to enter into the 
              * worldtoscreenfunc and then get the top left (max x and min y) 
              * Also get the bottom right corner and pass into the for loop in line 85. 
              * Scale is abs(bottomright-topleft)
              */
 
-            Collider col = towers[k].GetCollider();
+            Collider col = towers[k].getCollider();
 
             Vector3 wFrontTopLeft = new Vector3(col.bounds.min.x, col.bounds.max.y, col.bounds.min.z);
             Vector3 wFrontTopRight = new Vector3(col.bounds.max.x, col.bounds.max.y, col.bounds.min.z);
@@ -125,7 +141,6 @@ public class GameLogic : MonoBehaviour
             metadataUpdateParms.items[k].y = (int)topLeftY;
             metadataUpdateParms.items[k].scaleX = (int)Mathf.Abs(bottomRightX - topLeftX);
             metadataUpdateParms.items[k].scaleY = (int)Mathf.Abs(bottomRightY - topLeftY);
-
 
             /* Get Tower Information */
             TowerLevelData data = towers[k].GetComponentInChildren<TowerLevel>().levelData;
