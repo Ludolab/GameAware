@@ -67,20 +67,30 @@ public class GameLogic : MonoBehaviour
         // Move the camera around, changing both its position and orientation.
         // The hardcode math here is the generate certain kinds of desired motion -
         // it's not important that you understand how it works.
-        time2 += .3f;
-        mainCamera.transform.position = new Vector3(
-            400 + 100 * Mathf.Cos(time2 * .013f + 72) + 100 * Mathf.Cos(time2 * .0065f + 172),
-            225 + 80 * Mathf.Cos(time2 * .011f + 372) + 70 * Mathf.Cos(time2 * .0071f + 672),
-            -500 + 10 * Mathf.Cos(time2 * .0073f + 1372) + 8 * Mathf.Cos(time2 * .0087f + 1672)
-            );
-        mainCamera.transform.rotation = Quaternion.Euler(new Vector3(
-            4 * Mathf.Cos(time2 * .013f + 172) + 3 * Mathf.Cos(time2 * .0065f + 1172),
-            3 * Mathf.Cos(time2 * .011f + 1372) + 2 * Mathf.Cos(time2 * .0071f + 1672),
-            0));
+        //time2 += .3f;
+        //mainCamera.transform.position = new Vector3(
+        //    400 + 100 * Mathf.Cos(time2 * .013f + 72) + 100 * Mathf.Cos(time2 * .0065f + 172),
+        //    225 + 80 * Mathf.Cos(time2 * .011f + 372) + 70 * Mathf.Cos(time2 * .0071f + 672),
+        //    -500 + 10 * Mathf.Cos(time2 * .0073f + 1372) + 8 * Mathf.Cos(time2 * .0087f + 1672)
+        //    );
+        //mainCamera.transform.rotation = Quaternion.Euler(new Vector3(
+        //    4 * Mathf.Cos(time2 * .013f + 172) + 3 * Mathf.Cos(time2 * .0065f + 1172),
+        //    3 * Mathf.Cos(time2 * .011f + 1372) + 2 * Mathf.Cos(time2 * .0071f + 1672),
+        //    0));
 
         // The towers will be updating their positions and scale in their own update functions.
         // The following section of code will let's the metadata system know that this
         // is the particular metadata we want to send down to the clients.
+
+        //dyanmically get the towers that exist. Update the tower array
+
+        GameObject[] towersObj = GameObject.FindGameObjectsWithTag("Tower");
+        towers = new Tower[24];
+
+        for (var i = 0; i < towersObj.Length; i++)
+        {
+            towers[i] = towersObj[i].GetComponent<Tower>();
+        }
 
         for ( var k = 0; k < towers.Length; k++ ){
 
@@ -138,10 +148,4 @@ public class GameLogic : MonoBehaviour
         // that we want to broadcast that information.
         networking.GetAudienceSys().WriteMetadata<ServerTowers>("towers", metadataUpdateParms);
     }
-
-    /* use the getcollider function and then get the 8 coords to enter into the 
-         * worldtoscreenfunc and then get the top left (max x and min y) 
-         * Also get the bottom right corner and pass into the for loop in line 85. 
-         * Scale is abs(bottomright-topleft)
-         */
 }
