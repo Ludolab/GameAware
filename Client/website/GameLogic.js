@@ -13,74 +13,74 @@ function InitializeGame(apg) {
     var phaserGameWorld = apg.w;
     var metadataForFrame = null;
     var lastClickDelay = 0;
-    var fireflyID = 0;
+    var towerID = 0;
     var clickSound = apg.g.add.audio('assets/click.mp3', .4, false);
     apg.ResetServerMessageRegistry();
-    apg.Register("fireflies", function (updatedMetadataForNewFrame) {
+    apg.Register("towers", function (updatedMetadataForNewFrame) {
         metadataForFrame = updatedMetadataForNewFrame;
     });
-    var fireflyMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
-    fireflyMouseHighlight.blendMode = PIXI.blendModes.ADD;
-    fireflyMouseHighlight.anchor = new Phaser.Point(.5, .5);
-    fireflyMouseHighlight.scale = new Phaser.Point(1, 1);
-    fireflyMouseHighlight.update = function () {
+    var towerMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
+    towerMouseHighlight.blendMode = PIXI.blendModes.ADD;
+    towerMouseHighlight.anchor = new Phaser.Point(.5, .5);
+    towerMouseHighlight.scale = new Phaser.Point(1, 1);
+    towerMouseHighlight.update = function () {
         lastClickDelay--;
         if (metadataForFrame != null) {
-            var overAFirefly = false;
-            var fireflyIndex = -1;
+            var overAtower = false;
+            var towerIndex = -1;
             for (var k = 0; k < metadataForFrame.items.length; k++) {
                 var x = APGHelper.ScreenX(metadataForFrame.items[k].x);
                 var y = APGHelper.ScreenY(metadataForFrame.items[k].y);
                 if (Math.abs(apg.g.input.activePointer.x - x) < 48 && Math.abs(apg.g.input.activePointer.y - y) < 48) {
-                    fireflyIndex = k;
-                    overAFirefly = true;
-                    fireflyMouseHighlight.x = x;
-                    fireflyMouseHighlight.y = y;
-                    fireflyMouseHighlight.visible = true;
+                    towerIndex = k;
+                    overAtower = true;
+                    towerMouseHighlight.x = x;
+                    towerMouseHighlight.y = y;
+                    towerMouseHighlight.visible = true;
                 }
             }
-            if (!overAFirefly) {
-                fireflyMouseHighlight.visible = false;
+            if (!overAtower) {
+                towerMouseHighlight.visible = false;
                 if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
-                    fireflyID = -1;
+                    towerID = -1;
                     lastClickDelay = 20;
                 }
             }
             else {
                 if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
-                    fireflyID = fireflyIndex;
+                    towerID = towerIndex;
                     clickSound.play();
                     lastClickDelay = 20;
                 }
             }
         }
     };
-    phaserGameWorld.addChild(fireflyMouseHighlight);
-    var fireflyTargetGraphic = new Phaser.Sprite(apg.g, 0, 0, 'assets/hudselect.png');
-    fireflyTargetGraphic.blendMode = PIXI.blendModes.ADD;
-    fireflyTargetGraphic.anchor = new Phaser.Point(.5, .5);
-    fireflyTargetGraphic.scale = new Phaser.Point(1, 1);
-    fireflyTargetGraphic.update = function () {
-        if (fireflyID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
-            fireflyTargetGraphic.visible = true;
-            fireflyTargetGraphic.x = APGHelper.ScreenX(metadataForFrame.items[fireflyID].x);
-            fireflyTargetGraphic.y = APGHelper.ScreenY(metadataForFrame.items[fireflyID].y);
+    phaserGameWorld.addChild(towerMouseHighlight);
+    var towerTargetGraphic = new Phaser.Sprite(apg.g, 0, 0, 'assets/hudselect.png');
+    towerTargetGraphic.blendMode = PIXI.blendModes.ADD;
+    towerTargetGraphic.anchor = new Phaser.Point(.5, .5);
+    towerTargetGraphic.scale = new Phaser.Point(1, 1);
+    towerTargetGraphic.update = function () {
+        if (towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
+            towerTargetGraphic.visible = true;
+            towerTargetGraphic.x = APGHelper.ScreenX(metadataForFrame.items[towerID].x);
+            towerTargetGraphic.y = APGHelper.ScreenY(metadataForFrame.items[towerID].y);
         }
         else
-            fireflyTargetGraphic.visible = false;
+            towerTargetGraphic.visible = false;
     };
-    phaserGameWorld.addChild(fireflyTargetGraphic);
+    phaserGameWorld.addChild(towerTargetGraphic);
     var backgroundCoveringBinaryEncoding = new Phaser.Sprite(apg.g, -640, -320, 'assets/background.png');
     phaserGameWorld.addChild(backgroundCoveringBinaryEncoding);
-    var fireflyStatsText = new Phaser.Text(apg.g, 20, 10, "", { font: '16px Caveat Brush', fill: '#112' });
-    fireflyStatsText.update = function () {
-        if (fireflyID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
-            fireflyStatsText.visible = true;
-            fireflyStatsText.text = "ID: " + fireflyID + "\nScale " + Math.floor(metadataForFrame.items[fireflyID].scale / 10000 * 48);
+    var towerStatsText = new Phaser.Text(apg.g, 20, 10, "", { font: '16px Caveat Brush', fill: '#112' });
+    towerStatsText.update = function () {
+        if (towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
+            towerStatsText.visible = true;
+            towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor(metadataForFrame.items[towerID].scale / 10000 * 48);
         }
         else
-            fireflyStatsText.visible = false;
+            towerStatsText.visible = false;
     };
-    phaserGameWorld.addChild(fireflyStatsText);
+    phaserGameWorld.addChild(towerStatsText);
 }
 //# sourceMappingURL=GameLogic.js.map
