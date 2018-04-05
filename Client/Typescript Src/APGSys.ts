@@ -224,6 +224,6 @@ interface APGSys {
 
 class APGHelper {
 	// Well fixme here, obviously.
-	public static ScreenX(val: number): number { return val / 10000 * 1024; }
-	public static ScreenY(val: number): number { return (1 - val / 10000) * (768 - 96 - 96); }
+	public static ScreenX(val: number): number { return val / 1000 * 1024; }
+	public static ScreenY(val: number): number { return (1 - val / 1000) * (768 - 96 - 96); }
 }
