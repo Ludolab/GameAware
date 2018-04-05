@@ -102,15 +102,16 @@ public class GameLogic : MonoBehaviour
 
             Collider col = towers[k].getCollider();
 
-            Vector3 wFrontTopLeft = new Vector3(col.bounds.min.x, col.bounds.max.y, col.bounds.min.z);
-            Vector3 wFrontTopRight = new Vector3(col.bounds.max.x, col.bounds.max.y, col.bounds.min.z);
-            Vector3 wFrontBottomRight = new Vector3(col.bounds.max.x, col.bounds.min.y, col.bounds.min.z);
-            Vector3 wFrontBottomLeft = new Vector3(col.bounds.min.x, col.bounds.min.y, col.bounds.min.z);
-            Vector3 wBackTopLeft = new Vector3(col.bounds.min.x, col.bounds.max.y, col.bounds.max.z);
-            Vector3 wBackTopRight = new Vector3(col.bounds.max.x, col.bounds.max.y, col.bounds.max.z);
-            Vector3 wBackBottomRight = new Vector3(col.bounds.max.x, col.bounds.min.y, col.bounds.max.z);
-            Vector3 wBackBottomLeft = new Vector3(col.bounds.min.x, col.bounds.min.y, col.bounds.max.z);
+            Vector2 wFrontTopLeft = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.min.x, col.bounds.max.y, col.bounds.min.z));
+            Vector2 wFrontTopRight = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.max.x, col.bounds.max.y, col.bounds.min.z));
+            Vector2 wFrontBottomRight = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.max.x, col.bounds.min.y, col.bounds.min.z));
+            Vector2 wFrontBottomLeft = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.min.x, col.bounds.min.y, col.bounds.min.z));
+            Vector2 wBackTopLeft = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.min.x, col.bounds.max.y, col.bounds.max.z));
+            Vector2 wBackTopRight = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.max.x, col.bounds.max.y, col.bounds.max.z));
+            Vector2 wBackBottomRight = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.max.x, col.bounds.min.y, col.bounds.max.z));
+            Vector2 wBackBottomLeft = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.min.x, col.bounds.min.y, col.bounds.max.z));
 
+            /*
             var sFrontTopLeft = mainCamera.WorldToScreenPoint(wFrontTopLeft);
             var sFrontTopRight = mainCamera.WorldToScreenPoint(wFrontTopRight);
             var sFrontBottomRight = mainCamera.WorldToScreenPoint(wFrontBottomRight);
@@ -119,22 +120,23 @@ public class GameLogic : MonoBehaviour
             var sBackTopRight = mainCamera.WorldToScreenPoint(wBackTopRight);
             var sBackBottomRight = mainCamera.WorldToScreenPoint(wBackBottomRight);
             var sBackBottomLeft = mainCamera.WorldToScreenPoint(wBackBottomLeft);
+            */
 
-            var topLeftX = Mathf.Min(sFrontTopLeft.x, sFrontTopRight.x, sFrontBottomRight.x
-                                        , sFrontBottomLeft.x, sBackTopLeft.x, sBackTopRight.x
-                                        , sBackBottomRight.x, sBackBottomLeft.x);
+            var topLeftX = Mathf.Min(wFrontTopLeft.x, wFrontTopRight.x, wFrontBottomRight.x
+                                        , wFrontBottomLeft.x, wBackTopLeft.x, wBackTopRight.x
+                                        , wBackBottomRight.x, wBackBottomLeft.x);
 
-            var topLeftY = Mathf.Max(sFrontTopLeft.y, sFrontTopRight.y, sFrontBottomRight.y
-                                        , sFrontBottomLeft.y, sBackTopLeft.y, sBackTopRight.y
-                                        , sBackBottomRight.y, sBackBottomLeft.y);
+            var topLeftY = Mathf.Max(wFrontTopLeft.y, wFrontTopRight.y, wFrontBottomRight.y
+                                        , wFrontBottomLeft.y, wBackTopLeft.y, wBackTopRight.y
+                                        , wBackBottomRight.y, wBackBottomLeft.y);
 
-            var bottomRightX = Mathf.Max(sFrontTopLeft.x, sFrontTopRight.x, sFrontBottomRight.x
-                                        , sFrontBottomLeft.x, sBackTopLeft.x, sBackTopRight.x
-                                        , sBackBottomRight.x, sBackBottomLeft.x);
+            var bottomRightX = Mathf.Max(wFrontTopLeft.x, wFrontTopRight.x, wFrontBottomRight.x
+                                        , wFrontBottomLeft.x, wBackTopLeft.x, wBackTopRight.x
+                                        , wBackBottomRight.x, wBackBottomLeft.x);
 
-            var bottomRightY = Mathf.Min(sFrontTopLeft.y, sFrontTopRight.y, sFrontBottomRight.y
-                                        , sFrontBottomLeft.y, sBackTopLeft.y, sBackTopRight.y
-                                        , sBackBottomRight.y, sBackBottomLeft.y);
+            var bottomRightY = Mathf.Min(wFrontTopLeft.y, wFrontTopRight.y, wFrontBottomRight.y
+                                        , wFrontBottomLeft.y, wBackTopLeft.y, wBackTopRight.y
+                                        , wBackBottomRight.y, wBackBottomLeft.y);
 
 
             metadataUpdateParms.items[k].x = (int)topLeftX;
