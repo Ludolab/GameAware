@@ -27,6 +27,7 @@
     <Content Include="Website\APGApp.js" />
     <Content Include="Website\game.html" />
     <Content Include="Website\client.css" />
+    <Content Include="Website\GameLogic.js" />
     <Content Include="Website\phaser.js" />
     <Content Include="Website\phaser.min.js" />
   </ItemGroup>
