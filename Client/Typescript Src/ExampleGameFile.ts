@@ -53,6 +53,7 @@ interface Servertower{
 	y: number;
     scaleX: number;
     scaleY: number;
+    name: string;
     attack: number;
     coolDown: number;
     fireRate: number;
@@ -115,15 +116,19 @@ function InitializeGame(apg: APGSys): void {
 			var towerIndex = -1;
 			for (var k: number = 0; k < metadataForFrame.items.length; k++) {
 				// get the screen coordinates that have been passed down as metadata.
+                
+                //x = topleftX and y = topLeftY
 				var x: number = APGHelper.ScreenX(metadataForFrame.items[k].x);
                 var y: number = APGHelper.ScreenY(metadataForFrame.items[k].y);
 
+                //scaleX = width and sccaleY = height
                 var scaleX: number = APGHelper.ScreenX(metadataForFrame.items[k].scaleX);
                 var scaleY: number = APGHelper.ScreenY(metadataForFrame.items[k].scaleY);
 
 				// Test if our mouse is close to the screen space coordinates of the current tower.
 				// This test is simple and hard-coded for this demo.
-				if (Math.abs(apg.g.input.activePointer.x - x) < 48 && Math.abs(apg.g.input.activePointer.y - y) < 48) {
+				if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
+                    && apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
 
 					// We are over a tower, so record its index.
 					towerIndex = k;
@@ -191,7 +196,7 @@ function InitializeGame(apg: APGSys): void {
 	towerStatsText.update = () => {
 		if ( towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
 			towerStatsText.visible = true;
-			towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor( metadataForFrame.items[towerID].scaleX / 10000 * 48 );
+			towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE " + metadataForFrame.items[towerID].attack;
 		}
 		else towerStatsText.visible = false;
 	}
