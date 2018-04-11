@@ -192,7 +192,7 @@ function InitializeGame(apg: APGSys): void {
 	// _____ Stats Text _______
 
 	// This is statistic text.  It will display game logic metadata for the currently selected tower if, in fact, a tower is currently selected.
-	var towerStatsText: Phaser.Text = new Phaser.Text(apg.g, 20, 10, "", { font: '16px Caveat Brush', fill: '#112' });
+	var towerStatsText: Phaser.Text = new Phaser.Text(apg.g, towerMouseHighlight.x, towerMouseHighlight.y, "", { font: '16px Helvetica', fill: '#112' });
 	towerStatsText.update = () => {
 		if ( towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
 			towerStatsText.visible = true;
