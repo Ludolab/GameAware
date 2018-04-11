@@ -123,7 +123,7 @@ namespace APG {
     public static class Helper{
         public static Vector2 ScreenPosition( Camera camera, Vector3 position){
             var screenPos = camera.WorldToScreenPoint(position);
-            return new Vector2((int)(1000 * screenPos.x / camera.pixelWidth), (int)(1000 * screenPos.y / camera.pixelHeight));
+            return new Vector2((int)(10000 * screenPos.x / camera.pixelWidth), (int)(10000 * screenPos.y / camera.pixelHeight));
         }
 
         public static Vector2 ScreenPosition( Camera camera, MonoBehaviour gameObject){

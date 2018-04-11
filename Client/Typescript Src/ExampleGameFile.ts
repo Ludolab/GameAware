@@ -41,7 +41,7 @@ of the twitch video plugin, which is normally a violation of the browser securit
 // around downloaded to clients before the app launches.
 
 function CacheGameAssets(c: Cacher): void {
-	c.images('assets', ['hudselect.png', 'blueorb.png', 'background.png']);
+    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png']);
 	c.sounds('assets', ['click.mp3']);
 }
 
@@ -51,7 +51,11 @@ function CacheGameAssets(c: Cacher): void {
 interface Servertower{
     x: number;
 	y: number;
-	scale: number;
+    scaleX: number;
+    scaleY: number;
+    attack: number;
+    coolDown: number;
+    fireRate: number;
 }
 interface Servertowers{
 	items: Servertower[];
@@ -100,9 +104,9 @@ function InitializeGame(apg: APGSys): void {
 	// It let's us tell the viewer that they could click on that tower to target it.
 	// We will also do the logic in this game object to see if the mouse is down, and if so, we will
 	// target that tower, if one is highlighted, or untarget otherwise.
-	var towerMouseHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
-	towerMouseHighlight.blendMode = PIXI.blendModes.ADD;
-	towerMouseHighlight.anchor = new Phaser.Point(.5, .5);
+    var towerMouseHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/TowerInformationPopup.png');
+	//towerMouseHighlight.blendMode = PIXI.blendModes.ADD;
+	towerMouseHighlight.anchor = new Phaser.Point(0.4, 0.75);
 	towerMouseHighlight.scale = new Phaser.Point(1, 1);
 	towerMouseHighlight.update = () => {
 		lastClickDelay--;
@@ -111,8 +115,11 @@ function InitializeGame(apg: APGSys): void {
 			var towerIndex = -1;
 			for (var k: number = 0; k < metadataForFrame.items.length; k++) {
 				// get the screen coordinates that have been passed down as metadata.
-				var x:number = APGHelper.ScreenX( metadataForFrame.items[k].x );
-				var y: number = APGHelper.ScreenY(metadataForFrame.items[k].y);
+				var x: number = APGHelper.ScreenX(metadataForFrame.items[k].x);
+                var y: number = APGHelper.ScreenY(metadataForFrame.items[k].y);
+
+                var scaleX: number = APGHelper.ScreenX(metadataForFrame.items[k].scaleX);
+                var scaleY: number = APGHelper.ScreenY(metadataForFrame.items[k].scaleY);
 
 				// Test if our mouse is close to the screen space coordinates of the current tower.
 				// This test is simple and hard-coded for this demo.
@@ -184,7 +191,7 @@ function InitializeGame(apg: APGSys): void {
 	towerStatsText.update = () => {
 		if ( towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
 			towerStatsText.visible = true;
-			towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor( metadataForFrame.items[towerID].scale / 10000 * 48 );
+			towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor( metadataForFrame.items[towerID].scaleX / 10000 * 48 );
 		}
 		else towerStatsText.visible = false;
 	}

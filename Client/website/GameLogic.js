@@ -1,12 +1,12 @@
 var APGHelper = (function () {
     function APGHelper() {
     }
-    APGHelper.ScreenX = function (val) { return val / 1000 * 1024; };
-    APGHelper.ScreenY = function (val) { return (1 - val / 1000) * (768 - 96 - 96); };
+    APGHelper.ScreenX = function (val) { return val / 10000 * 1024; };
+    APGHelper.ScreenY = function (val) { return (1 - val / 10000) * (768 - 96 - 96); };
     return APGHelper;
 }());
 function CacheGameAssets(c) {
-    c.images('assets', ['hudselect.png', 'blueorb.png', 'background.png']);
+    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png']);
     c.sounds('assets', ['click.mp3']);
 }
 function InitializeGame(apg) {
@@ -19,9 +19,8 @@ function InitializeGame(apg) {
     apg.Register("towers", function (updatedMetadataForNewFrame) {
         metadataForFrame = updatedMetadataForNewFrame;
     });
-    var towerMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
-    towerMouseHighlight.blendMode = PIXI.blendModes.ADD;
-    towerMouseHighlight.anchor = new Phaser.Point(.5, .5);
+    var towerMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/TowerInformationPopup.png');
+    towerMouseHighlight.anchor = new Phaser.Point(0.4, 0.75);
     towerMouseHighlight.scale = new Phaser.Point(1, 1);
     towerMouseHighlight.update = function () {
         lastClickDelay--;
@@ -31,6 +30,8 @@ function InitializeGame(apg) {
             for (var k = 0; k < metadataForFrame.items.length; k++) {
                 var x = APGHelper.ScreenX(metadataForFrame.items[k].x);
                 var y = APGHelper.ScreenY(metadataForFrame.items[k].y);
+                var scaleX = APGHelper.ScreenX(metadataForFrame.items[k].scaleX);
+                var scaleY = APGHelper.ScreenY(metadataForFrame.items[k].scaleY);
                 if (Math.abs(apg.g.input.activePointer.x - x) < 48 && Math.abs(apg.g.input.activePointer.y - y) < 48) {
                     towerIndex = k;
                     overAtower = true;
@@ -76,7 +77,7 @@ function InitializeGame(apg) {
     towerStatsText.update = function () {
         if (towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
             towerStatsText.visible = true;
-            towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor(metadataForFrame.items[towerID].scale / 10000 * 48);
+            towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor(metadataForFrame.items[towerID].scaleX / 10000 * 48);
         }
         else
             towerStatsText.visible = false;
