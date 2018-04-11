@@ -196,7 +196,7 @@ function InitializeGame(apg: APGSys): void {
 	towerStatsText.update = () => {
 		if ( towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
 			towerStatsText.visible = true;
-			towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE " + metadataForFrame.items[towerID].attack;
+			towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE: " + metadataForFrame.items[towerID].fireRate + "\nATTACK: " + metadataForFrame.items[towerID].attack;
 		}
 		else towerStatsText.visible = false;
 	}
