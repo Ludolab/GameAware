@@ -32,27 +32,20 @@ function InitializeGame(apg) {
                 var y = APGHelper.ScreenY(metadataForFrame.items[k].y);
                 var scaleX = APGHelper.ScreenX(metadataForFrame.items[k].scaleX);
                 var scaleY = APGHelper.ScreenY(metadataForFrame.items[k].scaleY);
-                if (Math.abs(apg.g.input.activePointer.x - x) < 48 && Math.abs(apg.g.input.activePointer.y - y) < 48) {
+                if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
+                    apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
                     towerIndex = k;
                     overAtower = true;
                     towerMouseHighlight.x = x;
                     towerMouseHighlight.y = y;
                     towerMouseHighlight.visible = true;
+                    towerID = towerIndex;
                 }
             }
             if (!overAtower) {
                 towerMouseHighlight.visible = false;
-                if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
-                    towerID = -1;
-                    lastClickDelay = 20;
-                }
-            }
-            else {
-                if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
-                    towerID = towerIndex;
-                    clickSound.play();
-                    lastClickDelay = 20;
-                }
+                towerID = -1;
+                lastClickDelay = 20;
             }
         }
     };
@@ -73,11 +66,18 @@ function InitializeGame(apg) {
     phaserGameWorld.addChild(towerTargetGraphic);
     var backgroundCoveringBinaryEncoding = new Phaser.Sprite(apg.g, -640, -320, 'assets/background.png');
     phaserGameWorld.addChild(backgroundCoveringBinaryEncoding);
-    var towerStatsText = new Phaser.Text(apg.g, 20, 10, "", { font: '16px Caveat Brush', fill: '#112' });
+    var towerStatsText = new Phaser.Text(apg.g, towerMouseHighlight.x, towerMouseHighlight.y, "", { font: '12px Helvetica', fill: '#C0C0C0' });
+    towerStatsText.anchor = new Phaser.Point(1.25, 1.35);
+    var towerStatsFireBar = new Phaser.Graphics(apg.g, towerMouseHighlight.x, towerMouseHighlight.y);
     towerStatsText.update = function () {
         if (towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
+            towerStatsText.x = towerMouseHighlight.x;
+            towerStatsText.y = towerMouseHighlight.y;
             towerStatsText.visible = true;
-            towerStatsText.text = "ID: " + towerID + "\nScale " + Math.floor(metadataForFrame.items[towerID].scaleX / 10000 * 48);
+            towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE: \nATTACK:";
+            towerStatsFireBar.beginFill(0xff000);
+            console.log(metadataForFrame.items[towerID].fireRate);
+            towerStatsFireBar.drawRect(towerStatsText.x + 30, towerStatsText.y + 20, metadataForFrame.items[towerID].fireRate * 100, 100);
         }
         else
             towerStatsText.visible = false;
