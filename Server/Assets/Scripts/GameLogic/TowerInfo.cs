@@ -24,6 +24,7 @@ public class TowerInfo : MonoBehaviour {
         public float attack;
         public float coolDown;
         public float fireRate;
+        public string name;
     }
     [Serializable]
     public struct ServerTowers
@@ -121,11 +122,12 @@ public class TowerInfo : MonoBehaviour {
             TowerLevelData data = towers[k].GetComponentInChildren<TowerLevel>().levelData;
             AttackAffector attack = towers[k].GetComponentInChildren<AttackAffector>();
             metadataUpdateParms.items[k].attack = attack.projectile.GetComponent<Damager>().damage;
-            metadataUpdateParms.items[k].coolDown = attack.projectile.GetComponent<HitscanAttack>().delay;
             metadataUpdateParms.items[k].fireRate = attack.fireRate;
+
+            metadataUpdateParms.items[k].name = towers[k].towerName;
         }
     }
-
+    
     public ServerTowers GetTowerInformation()
     {
         return metadataUpdateParms;

@@ -14,6 +14,7 @@ public class GameLogic : MonoBehaviour
     public TwitchNetworking networking;
 
     private TowerInfo ti;
+    private EnemyInfo ei;
 
     void Start()
     {
@@ -23,13 +24,17 @@ public class GameLogic : MonoBehaviour
 
         // Add components to grab information
         ti = gameObject.AddComponent<TowerInfo>();
+        ei = gameObject.AddComponent<EnemyInfo>();
+
     }
 
     void FixedUpdate()
     {
         // Get information to pass over
         // Tell system to broadcast information
-        networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
+        //networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
+        networking.GetAudienceSys().WriteMetadata("enemies", ei.GetEnemyInformation());
+
     }
 
 }

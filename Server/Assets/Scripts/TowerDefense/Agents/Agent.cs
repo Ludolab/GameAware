@@ -240,6 +240,7 @@ namespace TowerDefense.Agents
 			base.Awake();
 			LazyLoad();
 			m_NavMeshAgent.enabled = false;
+            gameObject.tag = "Enemy";
 		}
 		
 		/// <summary>
@@ -344,5 +345,10 @@ namespace TowerDefense.Agents
 			}
 		}
 #endif
+
+        public Collider GetCollider()
+        {
+            return gameObject.GetComponent<Collider>();
+        }
 	}
 }

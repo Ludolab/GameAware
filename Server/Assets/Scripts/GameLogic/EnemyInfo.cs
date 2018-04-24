@@ -4,10 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TowerDefense.Affectors;
 using TowerDefense.Agents;
+using TowerDefense.Level;
 using TowerDefense.Towers;
 using TowerDefense.Towers.Data;
 using TowerDefense.Towers.Projectiles;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyInfo : MonoBehaviour {
 
@@ -18,18 +20,28 @@ public class EnemyInfo : MonoBehaviour {
     [Serializable]
     public struct ServerEnemyInformation
     {
+        public string enemyName;
+        public float attack;
+        public float health;
+        public float speed;
+    }
+
+    [Serializable]
+    public struct ServerEnemyPosition
+    {
+        public string enemyName;
         public int x;
         public int y;
         public int scaleX;
         public int scaleY;
-        public float attack;
-        public float coolDown;
-        public float fireRate;
     }
+
     [Serializable]
     public struct ServerEnemies
     {
-        public ServerEnemyInformation[] items;
+        public ServerEnemyPosition[] enemies;
+        public ServerEnemyInformation[] info;
+        public int waveNumber;
     }
 
     // This will be the enemies we'll be watching in the video - we'll be broadcasting
@@ -44,6 +56,7 @@ public class EnemyInfo : MonoBehaviour {
     // metadata message.
     ServerEnemies metadataUpdateParms;
 
+    public int currWaveNum;
 
     private void Start()
     {
@@ -53,20 +66,39 @@ public class EnemyInfo : MonoBehaviour {
 
     void FixedUpdate()
     {
-        // The enemies will be updating their positions and scale in their own update functions.
-        // The following section of code will let's the metadata system know that this
-        // is the particular metadata we want to send down to the clients.
+        //Get Enemy Information from the Wave Manager
+        Dictionary<string, Agent> enemyTypes = new Dictionary<string, Agent>();
 
-        metadataUpdateParms.items = new ServerEnemyInformation[enemies.Length];
+        WaveManager wm = GameObject.FindGameObjectWithTag("Wave Manager").GetComponent<WaveManager>();
+        List<SpawnInstruction> si = wm.waves[wm.waveNumber - 1].spawnInstructions;
 
-        // The enemies will be updating their positions and scale in their own update functions.
-        // The following section of code will let's the metadata system know that this
-        // is the particular metadata we want to send down to the clients.
+        for (int i = 0; i < si.Count; i++)
+        {
+            if(!enemyTypes.ContainsKey(si[i].agentConfiguration.agentName)) {
+                enemyTypes.Add(si[i].agentConfiguration.agentName, si[i].agentConfiguration.agentPrefab);
+            }
+        }
 
-        //dyanmically get the enemies that exist. Update the enemy array
+        metadataUpdateParms.info = new ServerEnemyInformation[enemyTypes.Count];
 
+        metadataUpdateParms.waveNumber = wm.waveNumber;
+        
+
+        int idx = 0;
+        foreach (KeyValuePair<string, Agent> enemy in enemyTypes)
+        {
+            metadataUpdateParms.info[idx].enemyName = enemy.Key;
+            metadataUpdateParms.info[idx].health = enemy.Value.configuration.maxHealth;
+            metadataUpdateParms.info[idx].speed = enemy.Value.gameObject.GetComponent<NavMeshAgent>().speed;
+            metadataUpdateParms.info[idx].attack = enemy.Value.gameObject.GetComponent<Damager>().damage;
+            idx++;
+        }
+
+        //get positions of all of the enemies currently spawned
         GameObject[] enemiesObj = GameObject.FindGameObjectsWithTag("Enemy");
-        enemies = new Agent[24];
+        enemies = new Agent[enemiesObj.Length];
+
+        metadataUpdateParms.enemies = new ServerEnemyPosition[enemies.Length];
 
         for (var i = 0; i < enemiesObj.Length; i++)
         {
@@ -75,7 +107,6 @@ public class EnemyInfo : MonoBehaviour {
 
         for (var k = 0; k < enemiesObj.Length; k++)
         {
-
             //var screenPos = APG.Helper.ScreenPosition(mainCamera, enemies[k]);
 
             /* use the getcollider function and then get the 8 coords to enter into the 
@@ -84,7 +115,7 @@ public class EnemyInfo : MonoBehaviour {
              * Scale is abs(bottomright-topleft)
              */
 
-            Collider col = new Collider();// = enemies[k].getCollider();
+            Collider col = enemies[k].GetCollider();
 
             Vector2 wFrontTopLeft = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.min.x, col.bounds.max.y, col.bounds.min.z));
             Vector2 wFrontTopRight = APG.Helper.ScreenPosition(mainCamera, new Vector3(col.bounds.max.x, col.bounds.max.y, col.bounds.min.z));
@@ -113,17 +144,11 @@ public class EnemyInfo : MonoBehaviour {
                                         , wFrontBottomLeft.y, wBackTopLeft.y, wBackTopRight.y
                                         , wBackBottomRight.y, wBackBottomLeft.y);
 
-
-            metadataUpdateParms.items[k].x = (int)topLeftX;
-            metadataUpdateParms.items[k].y = (int)topLeftY;
-            metadataUpdateParms.items[k].scaleX = (int)Mathf.Abs(bottomRightX - topLeftX);
-            metadataUpdateParms.items[k].scaleY = (int)Mathf.Abs(bottomRightY - topLeftY);
-
-            /* Get Enemy Information */
-            AttackAffector attack = enemies[k].GetComponentInChildren<AttackAffector>();
-            metadataUpdateParms.items[k].attack = attack.projectile.GetComponent<Damager>().damage;
-            metadataUpdateParms.items[k].coolDown = attack.projectile.GetComponent<HitscanAttack>().delay;
-            metadataUpdateParms.items[k].fireRate = attack.fireRate;
+            metadataUpdateParms.enemies[k].enemyName = enemies[k].name.Replace("(Clone)", "");
+            metadataUpdateParms.enemies[k].x = (int)topLeftX;
+            metadataUpdateParms.enemies[k].y = (int)topLeftY;
+            metadataUpdateParms.enemies[k].scaleX = (int)Mathf.Abs(bottomRightX - topLeftX);
+            metadataUpdateParms.enemies[k].scaleY = (int)Mathf.Abs(bottomRightY - topLeftY);
         }
     }
 
