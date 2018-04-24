@@ -249,8 +249,18 @@ public class TwitchNetworking:MonoBehaviour {
 
         cachedMetaData.Append("" + time + "~" + msg + "~" + parmsString + "\r\n");
 
-        if ((time % 60) == 0){
-            if (UseSingleMachineTestNetworking){
+        /*
+                if ((time % 60) == 0){
+                    if (UseSingleMachineTestNetworking){
+                        System.IO.File.WriteAllText(SingleMachineTestNetworkingDirectory + Path.DirectorySeparatorChar + "test" + Mathf.Floor(time / 60) + ".txt", cachedMetaData.ToString());
+                    }
+                    cachedMetaData.Length = 0;
+                }
+                */
+        if (((time % 60) == 0) && cachedMetaData.Length != 0)
+        {
+            if (UseSingleMachineTestNetworking)
+            {
                 System.IO.File.WriteAllText(SingleMachineTestNetworkingDirectory + Path.DirectorySeparatorChar + "test" + Mathf.Floor(time / 60) + ".txt", cachedMetaData.ToString());
             }
             cachedMetaData.Length = 0;
