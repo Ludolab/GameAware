@@ -176,6 +176,9 @@ function InitializeGame(apg: APGSys): void {
                     towerMouseHighlight.visible = false;
                     towerID = -1;
                     lastClickDelay = 20;
+
+					//clear graphics here if doing global clear
+
                 }
             }
         }
@@ -209,22 +212,24 @@ function InitializeGame(apg: APGSys): void {
                 //shows the text
                 towerStatsText.visible = true;
                 towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE: \nATTACK:";
-
-                /*draws the rectangles
-                towerStatsFireBar.visible = true;
-                towerStatsFireBar.beginFill(0xff000);
-                towerStatsFireBar.drawRect(towerMouseHighlight.x, towerMouseHighlight.y, metadataForFrame.items[towerID].fireRate * 100, 100);
-                */
-                //*
-                towerStatsFireBar.width = metadataForFrame.items[towerID].fireRate * 10;
+                
+                //
+                towerStatsFireBar.width = metadataForFrame.items[towerID].fireRate * 100;
                 towerStatsFireBar.height = 10;
                 towerStatsFireBar.x = towerMouseHighlight.x;
                 towerStatsFireBar.y = towerMouseHighlight.y;
 
+				//draws the rectangles
+                towerStatsFireBar.visible = true;
+                towerStatsFireBar.beginFill(0xff000);
+                towerStatsFireBar.drawRect(towerStatsFireBar.x, towerStatsFireBar.y, towerStatsFireBar.width, 100);
+				towerStatsFireBar.endFill();
                 //*/
             }
             else {
                 towerStatsText.visible = false;
+				towerStatsFireBar.kill();
+				towerStatsFireBar.remove();
                 //towerStatsFireBar.visible = false;
             }
         }
