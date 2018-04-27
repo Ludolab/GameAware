@@ -94,7 +94,10 @@ public class EnemyInfo : MonoBehaviour {
             idx++;
         }
 
-        //get positions of all of the enemies currently spawned
+        /*
+         * get positions of all of the enemies currently spawned
+         */
+
         GameObject[] enemiesObj = GameObject.FindGameObjectsWithTag("Enemy");
         enemies = new Agent[enemiesObj.Length];
 
