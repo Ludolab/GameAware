@@ -274,7 +274,31 @@ function InitializeGame(apg: APGSys): void {
 
                         var enemyInformationPopup: Phaser.Sprite = new Phaser.Sprite(apg.g, enemyInformationArea.x + 20, i * 100 + enemyInformationArea.y + 20, 'assets/EnemyInformationPopup.png');
                         enemyInformationPopup.update = () => {
+                            /*
                             //on cursor mouseover, go through enemies array and create phaser sprite on top of enemies of matching type
+                            if (enemyMetadataForFrame != null) {
+                                var x: number = enemyInformationPopup.x;
+                                var y: number = enemyInformationPopup.y;
+
+                                var scaleX: number = enemyInformationPopup.scale.x;
+                                var scaleY: number = enemyInformationPopup.scale.y;
+
+                                if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
+                                    apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
+                                    for (var i: number = 0; i < enemyMetadataForFrame.enemies.length; i++) {
+                                        // We are over a enemy, so record its index.
+                                        enemyIndex = k;
+                                        overAenemy = true;
+
+                                        // Center the highlight on this enemy and make it visible.
+                                        enemyMouseHighlight.x = x;
+                                        enemyMouseHighlight.y = y;
+                                        enemyMouseHighlight.visible = true;
+
+                                        enemyID = enemyIndex;
+                                    }
+                                }
+                            }*/
                         }
                         phaserGameWorld.addChild(enemyInformationPopup);
 

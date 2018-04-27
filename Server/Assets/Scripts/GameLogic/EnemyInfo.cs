@@ -66,7 +66,9 @@ public class EnemyInfo : MonoBehaviour {
 
     void FixedUpdate()
     {
-        //Get Enemy Information from the Wave Manager
+        /*
+         * Get Enemy Information from the Wave Manager
+         */
         Dictionary<string, Agent> enemyTypes = new Dictionary<string, Agent>();
 
         WaveManager wm = GameObject.FindGameObjectWithTag("Wave Manager").GetComponent<WaveManager>();
