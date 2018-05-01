@@ -1,11 +1,6 @@
 ﻿
 using System;
 using UnityEngine;
-using TowerDefense.Towers;
-using TowerDefense.Towers.Data;
-using TowerDefense.Affectors;
-using ActionGameFramework.Health;
-using TowerDefense.Towers.Projectiles;
 
 public class GameLogic : MonoBehaviour
 {
@@ -15,6 +10,15 @@ public class GameLogic : MonoBehaviour
 
     private TowerInfo ti;
     private EnemyInfo ei;
+
+    [Serializable]
+    public struct ServerMessage
+    {
+        public EnemyInfo.ServerEnemies enemyInfo;
+        public TowerInfo.ServerTowers towerInfo;
+    }
+
+    public ServerMessage sm;
 
     void Start()
     {
@@ -26,15 +30,20 @@ public class GameLogic : MonoBehaviour
         ti = gameObject.AddComponent<TowerInfo>();
         ei = gameObject.AddComponent<EnemyInfo>();
 
+        sm = new ServerMessage();
     }
 
     void FixedUpdate()
     {
+        sm.enemyInfo = ei.GetEnemyInformation();
+        sm.towerInfo = ti.GetTowerInformation();
+
         // Get information to pass over
         // Tell system to broadcast information
-        //networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
-        networking.GetAudienceSys().WriteMetadata("enemies", ei.GetEnemyInformation());
+        networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
+        //networking.GetAudienceSys().WriteMetadata("enemies", ei.GetEnemyInformation());
 
+        networking.GetAudienceSys().WriteMetadata("server", sm);
     }
 
 }

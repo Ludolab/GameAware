@@ -26,6 +26,7 @@ public class TowerInfo : MonoBehaviour {
         public float fireRate;
         public string name;
     }
+
     [Serializable]
     public struct ServerTowers
     {

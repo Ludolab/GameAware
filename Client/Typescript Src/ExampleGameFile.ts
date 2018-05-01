@@ -48,18 +48,18 @@ function CacheGameAssets(c: Cacher): void {
 // These two interfaces are the parameters for network messages.  They'll be serialized into JSON and then trasmitted across the metadata server.
 // The specific fields need to stay in sync (by both type and name) with the C# code.
 
-interface Servertower{
+interface ServerTower{
     x: number;
 	y: number;
     scaleX: number;
     scaleY: number;
-    name: string;
     attack: number;
     coolDown: number;
     fireRate: number;
+    name: string;
 }
-interface Servertowers{
-	items: Servertower[];
+interface ServerTowers{
+	items: ServerTower[];
 }
 
 interface ServerEnemyInformation {
@@ -81,6 +81,11 @@ interface ServerEnemies {
     info: ServerEnemyInformation[];
     enemies: ServerEnemyPosition[];
     waveNumber: number;
+}
+
+interface ServerMessage {
+    enemyInfo: ServerEnemies;
+    towerInfo: ServerTowers;
 }
 
 function InitializeGame(apg: APGSys): void {
@@ -106,24 +111,37 @@ function InitializeGame(apg: APGSys): void {
 	// there is a background under that text that obscures that visually jarring binary frame data
 	// in the video stream.
 
+    var serverMetadataForFrame: ServerMessage = null;
+    var metadataForFrame: ServerTowers = null;
+    var enemyMetadataForFrame: ServerEnemies = null;
+
+
+    apg.ResetServerMessageRegistry();
+    apg.Register<ServerMessage>("server", updatedMetadataForNewFrame => {
+        // We register a simple callback that updates when the video frame has advanced and there is new metadata.
+        // We will use this metadata in game object frame updates to change what is displayed in the overlay.
+        // In theory, it would be more efficient to do the actual updating in this callback, but it's not a priority.
+        serverMetadataForFrame = updatedMetadataForNewFrame;
+        metadataForFrame = serverMetadataForFrame.towerInfo;
+        enemyMetadataForFrame = serverMetadataForFrame.enemyInfo;
+    });
+
     // #region Tower
     {
         // _____________________________________ REGISTER CALLBACKS _______________________________________
 
         // Setup callbacks with the metadata subsystem.
-
-        var metadataForFrame: Servertowers = null;
-
-        apg.ResetServerMessageRegistry();
-        apg.Register<Servertowers>("towers", updatedMetadataForNewFrame => {
+        /*
+        apg.Register<ServerTowers>("towers", updatedMetadataForNewFrame => {
             // We register a simple callback that updates when the video frame has advanced and there is new metadata.
             // We will use this metadata in game object frame updates to change what is displayed in the overlay.
             // In theory, it would be more efficient to do the actual updating in this callback, but it's not a priority.
             metadataForFrame = updatedMetadataForNewFrame;
+            console.log("updating metadata");
         });
+        */
 
-
-        // Index in the Servertowers array of the currently selected tower.  We'll default to showing the first tower.
+        // Index in the Servertowers array of the currently selected tower. 
         var towerID: number = 0;
 
         // _____ Mouse Highlighter _______
@@ -145,25 +163,32 @@ function InitializeGame(apg: APGSys): void {
                     // get the screen coordinates that have been passed down as metadata.
 
                     //x = topleftX and y = topLeftY
-                    var x: number = APGHelper.ScreenX(metadataForFrame.items[k].x);
-                    var y: number = APGHelper.ScreenY(metadataForFrame.items[k].y);
+                    var topX: number = APGHelper.ScreenX(metadataForFrame.items[k].x);
+                    var topY: number = APGHelper.ScreenY(metadataForFrame.items[k].y);
 
                     //scaleX = width and sccaleY = height
-                    var scaleX: number = APGHelper.ScreenX(metadataForFrame.items[k].scaleX);
-                    var scaleY: number = APGHelper.ScreenY(metadataForFrame.items[k].scaleY);
+                    var bottomX: number = APGHelper.ScreenX(metadataForFrame.items[k].scaleX + metadataForFrame.items[k].x);
+                    var bottomY: number = APGHelper.ScreenY(metadataForFrame.items[k].y - metadataForFrame.items[k].scaleY);
 
                     // Test if our mouse is close to the screen space coordinates of the current tower.
                     // This test is simple and hard-coded for this demo.
-                    if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
-                        apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
+
+                    if (apg.g.input.activePointer.y >= bottomY && apg.g.input.activePointer.y <= bottomY) {
+                        console.log("y is correct");
+                    }
+
+                    if (apg.g.input.activePointer.x >= topX && apg.g.input.activePointer.x <= bottomX &&
+                        apg.g.input.activePointer.y >= topY && apg.g.input.activePointer.y <= bottomY) {
+
+                        console.log("correct position");
 
                         // We are over a tower, so record its index.
                         towerIndex = k;
                         overAtower = true;
 
                         // Center the highlight on this tower and make it visible.
-                        towerMouseHighlight.x = x;
-                        towerMouseHighlight.y = y;
+                        towerMouseHighlight.x = topX;
+                        towerMouseHighlight.y = topY;
                         towerMouseHighlight.visible = true;
 
                         towerID = towerIndex;
@@ -198,8 +223,8 @@ function InitializeGame(apg: APGSys): void {
         towerStatsText.anchor = new Phaser.Point(1.0, 1.35);
 
         //The Rectangle representing the fire rate
-        //var towerStatsFireBar: Phaser.Graphics = new Phaser.Graphics(apg.g, 0, 0);
-        var towerStatsFireBar: Phaser.Rectangle = new Phaser.Rectangle(0, 0, 0, 0);
+        var towerStatsFireBar: Phaser.Graphics = new Phaser.Graphics(apg.g, 0, 0);
+       // var towerStatsFireBar: Phaser.Rectangle = new Phaser.Rectangle(0, 0, 0, 0);
 
 
         //Showing the game data when the tower is being hovered over
@@ -229,7 +254,7 @@ function InitializeGame(apg: APGSys): void {
             else {
                 towerStatsText.visible = false;
 				towerStatsFireBar.kill();
-				towerStatsFireBar.remove();
+				//towerStatsFireBar.remove();
                 //towerStatsFireBar.visible = false;
             }
         }
@@ -242,16 +267,15 @@ function InitializeGame(apg: APGSys): void {
     // #region Enemy
     {
 
-        var enemyMetadataForFrame: ServerEnemies = null;
-
+        /*
         // Setup callbacks with the metadata subsystem.
-        apg.ResetServerMessageRegistry();
         apg.Register<ServerEnemies>("enemies", updatedMetadataForNewFrame => {
             // We register a simple callback that updates when the video frame has advanced and there is new metadata.
             // We will use this metadata in game object frame updates to change what is displayed in the overlay.
             // In theory, it would be more efficient to do the actual updating in this callback, but it's not a priority.
             enemyMetadataForFrame = updatedMetadataForNewFrame;
         });
+        */
 
         // Index in the Serverenemies array of the currently selected enemy.  We'll default to showing the first enemy.
         var enemyID: number = 0;
@@ -279,7 +303,31 @@ function InitializeGame(apg: APGSys): void {
 
                         var enemyInformationPopup: Phaser.Sprite = new Phaser.Sprite(apg.g, enemyInformationArea.x + 20, i * 100 + enemyInformationArea.y + 20, 'assets/EnemyInformationPopup.png');
                         enemyInformationPopup.update = () => {
+                            /*
                             //on cursor mouseover, go through enemies array and create phaser sprite on top of enemies of matching type
+                            if (enemyMetadataForFrame != null) {
+                                var x: number = enemyInformationPopup.x;
+                                var y: number = enemyInformationPopup.y;
+
+                                var scaleX: number = enemyInformationPopup.scale.x;
+                                var scaleY: number = enemyInformationPopup.scale.y;
+
+                                if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
+                                    apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
+                                    for (var i: number = 0; i < enemyMetadataForFrame.enemies.length; i++) {
+                                        // We are over a enemy, so record its index.
+                                        enemyIndex = k;
+                                        overAenemy = true;
+
+                                        // Center the highlight on this enemy and make it visible.
+                                        enemyMouseHighlight.x = x;
+                                        enemyMouseHighlight.y = y;
+                                        enemyMouseHighlight.visible = true;
+
+                                        enemyID = enemyIndex;
+                                    }
+                                }
+                            }*/
                         }
                         phaserGameWorld.addChild(enemyInformationPopup);
 
