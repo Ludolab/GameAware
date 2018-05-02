@@ -6,7 +6,7 @@ var APGHelper = (function () {
     return APGHelper;
 }());
 function CacheGameAssets(c) {
-    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png', 'EnemyInformationPopup.png']);
+    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png', 'EnemyInformationPopup.png', 'Rectangle.png']);
     c.sounds('assets', ['click.mp3']);
 }
 function InitializeGame(apg) {
@@ -31,24 +31,21 @@ function InitializeGame(apg) {
             lastClickDelay--;
             if (metadataForFrame != null) {
                 var overAtower = false;
-                var towerIndex = -1;
                 for (var k = 0; k < metadataForFrame.items.length; k++) {
-                    var topX = APGHelper.ScreenX(metadataForFrame.items[k].x);
+                    var leftX = APGHelper.ScreenX(metadataForFrame.items[k].x);
                     var topY = APGHelper.ScreenY(metadataForFrame.items[k].y);
-                    var bottomX = APGHelper.ScreenX(metadataForFrame.items[k].scaleX + metadataForFrame.items[k].x);
+                    var rightX = APGHelper.ScreenX(metadataForFrame.items[k].scaleX + metadataForFrame.items[k].x);
                     var bottomY = APGHelper.ScreenY(metadataForFrame.items[k].y - metadataForFrame.items[k].scaleY);
-                    if (apg.g.input.activePointer.y >= bottomY && apg.g.input.activePointer.y <= bottomY) {
-                        console.log("y is correct");
-                    }
-                    if (apg.g.input.activePointer.x >= topX && apg.g.input.activePointer.x <= bottomX &&
+                    if (apg.g.input.activePointer.x >= leftX && apg.g.input.activePointer.x <= rightX &&
                         apg.g.input.activePointer.y >= topY && apg.g.input.activePointer.y <= bottomY) {
-                        console.log("correct position");
-                        towerIndex = k;
                         overAtower = true;
-                        towerMouseHighlight.x = topX;
+                        towerMouseHighlight.x = leftX;
                         towerMouseHighlight.y = topY;
                         towerMouseHighlight.visible = true;
-                        towerID = towerIndex;
+                        towerID = k;
+                        towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE \nATTACK";
+                        towerStatsFireBar.scale = new Phaser.Point(metadataForFrame.items[towerID].fireRate * 1.5, 0.6);
+                        towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 1.5, 0.6);
                     }
                 }
                 if (!overAtower) {
@@ -59,32 +56,29 @@ function InitializeGame(apg) {
             }
         };
         phaserGameWorld.addChild(towerMouseHighlight);
-        var backgroundCoveringBinaryEncoding = new Phaser.Sprite(apg.g, -640, -320, 'assets/background.png');
-        phaserGameWorld.addChild(backgroundCoveringBinaryEncoding);
-        var towerStatsText = new Phaser.Text(apg.g, towerMouseHighlight.x, towerMouseHighlight.y, "", { font: '12px Helvetica', fill: '#C0C0C0' });
-        towerStatsText.anchor = new Phaser.Point(1.0, 1.35);
-        var towerStatsFireBar = new Phaser.Graphics(apg.g, 0, 0);
-        towerStatsText.update = function () {
-            if (towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
-                towerStatsText.x = towerMouseHighlight.x;
-                towerStatsText.y = towerMouseHighlight.y;
-                towerStatsText.visible = true;
-                towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE: \nATTACK:";
-                towerStatsFireBar.width = metadataForFrame.items[towerID].fireRate * 100;
-                towerStatsFireBar.height = 10;
-                towerStatsFireBar.x = towerMouseHighlight.x;
-                towerStatsFireBar.y = towerMouseHighlight.y;
-                towerStatsFireBar.visible = true;
-                towerStatsFireBar.beginFill(0xff000);
-                towerStatsFireBar.drawRect(towerStatsFireBar.x, towerStatsFireBar.y, towerStatsFireBar.width, 100);
-                towerStatsFireBar.endFill();
-            }
-            else {
-                towerStatsText.visible = false;
-                towerStatsFireBar.kill();
+        var towerStatsText = new Phaser.Text(apg.g, -85, -85, "", { font: '12px Helvetica', fill: '#C0C0C0' });
+        towerStatsText.update = function () { };
+        towerMouseHighlight.addChild(towerStatsText);
+        var towerStatsFireBar = new Phaser.Sprite(apg.g, -10, -63, 'assets/Rectangle.png');
+        towerStatsFireBar.scale = new Phaser.Point(0.6, 0.6);
+        towerStatsFireBar.tint = 0xFF6961;
+        towerStatsFireBar.update = function () {
+            if (towerStatsFireBar.parent != towerMouseHighlight) {
+                towerStatsFireBar.parent.removeChild(towerStatsFireBar);
+                towerMouseHighlight.addChild(towerStatsFireBar);
             }
         };
-        phaserGameWorld.addChild(towerStatsText);
+        phaserGameWorld.addChild(towerStatsFireBar);
+        var towerStatsAttackBar = new Phaser.Sprite(apg.g, -10, -43, 'assets/Rectangle.png');
+        towerStatsAttackBar.scale = new Phaser.Point(0.6, 0.6);
+        towerStatsAttackBar.tint = 0xE6C76A;
+        towerStatsAttackBar.update = function () {
+            if (towerStatsAttackBar.parent != towerMouseHighlight) {
+                towerStatsAttackBar.parent.removeChild(towerStatsAttackBar);
+                towerMouseHighlight.addChild(towerStatsAttackBar);
+            }
+        };
+        phaserGameWorld.addChild(towerStatsAttackBar);
     }
     {
         var enemyID = 0;
