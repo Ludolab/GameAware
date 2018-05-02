@@ -41,7 +41,7 @@ of the twitch video plugin, which is normally a violation of the browser securit
 // around downloaded to clients before the app launches.
 
 function CacheGameAssets(c: Cacher): void {
-    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png', 'EnemyInformationPopup.png']);
+    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png', 'EnemyInformationPopup.png', 'Rectangle.png']);
 	c.sounds('assets', ['click.mp3']);
 }
 
@@ -128,70 +128,53 @@ function InitializeGame(apg: APGSys): void {
 
     // #region Tower
     {
-        // _____________________________________ REGISTER CALLBACKS _______________________________________
-
-        // Setup callbacks with the metadata subsystem.
-        /*
-        apg.Register<ServerTowers>("towers", updatedMetadataForNewFrame => {
-            // We register a simple callback that updates when the video frame has advanced and there is new metadata.
-            // We will use this metadata in game object frame updates to change what is displayed in the overlay.
-            // In theory, it would be more efficient to do the actual updating in this callback, but it's not a priority.
-            metadataForFrame = updatedMetadataForNewFrame;
-            console.log("updating metadata");
-        });
-        */
-
         // Index in the Servertowers array of the currently selected tower. 
         var towerID: number = 0;
 
         // _____ Mouse Highlighter _______
 
         // This is a highlight for the situation when the mouse cursor is roughly over one of the towers.
-        // It let's us tell the viewer that they could click on that tower to target it.
-        // We will also do the logic in this game object to see if the mouse is down, and if so, we will
+        // We will do the logic in this game object to see if the mouse is down, and if so, we will
         // target that tower, if one is highlighted, or untarget otherwise.
+
+        /* Highlight Object */
         var towerMouseHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/TowerInformationPopup.png');
-        //towerMouseHighlight.blendMode = PIXI.blendModes.ADD;
         towerMouseHighlight.anchor = new Phaser.Point(0.4, 0.75);
         towerMouseHighlight.scale = new Phaser.Point(1, 1);
         towerMouseHighlight.update = () => {
             lastClickDelay--;
             if (metadataForFrame != null) {
                 var overAtower: boolean = false;
-                var towerIndex = -1;
                 for (var k: number = 0; k < metadataForFrame.items.length; k++) {
-                    // get the screen coordinates that have been passed down as metadata.
 
                     //x = topleftX and y = topLeftY
-                    var topX: number = APGHelper.ScreenX(metadataForFrame.items[k].x);
+                    var leftX: number = APGHelper.ScreenX(metadataForFrame.items[k].x);
                     var topY: number = APGHelper.ScreenY(metadataForFrame.items[k].y);
 
                     //scaleX = width and sccaleY = height
-                    var bottomX: number = APGHelper.ScreenX(metadataForFrame.items[k].scaleX + metadataForFrame.items[k].x);
+                    var rightX: number = APGHelper.ScreenX(metadataForFrame.items[k].scaleX + metadataForFrame.items[k].x);
                     var bottomY: number = APGHelper.ScreenY(metadataForFrame.items[k].y - metadataForFrame.items[k].scaleY);
 
                     // Test if our mouse is close to the screen space coordinates of the current tower.
                     // This test is simple and hard-coded for this demo.
 
-                    if (apg.g.input.activePointer.y >= bottomY && apg.g.input.activePointer.y <= bottomY) {
-                        console.log("y is correct");
-                    }
-
-                    if (apg.g.input.activePointer.x >= topX && apg.g.input.activePointer.x <= bottomX &&
+                    if (apg.g.input.activePointer.x >= leftX && apg.g.input.activePointer.x <= rightX &&
                         apg.g.input.activePointer.y >= topY && apg.g.input.activePointer.y <= bottomY) {
 
-                        console.log("correct position");
-
                         // We are over a tower, so record its index.
-                        towerIndex = k;
                         overAtower = true;
 
                         // Center the highlight on this tower and make it visible.
-                        towerMouseHighlight.x = topX;
+                        towerMouseHighlight.x = leftX;
                         towerMouseHighlight.y = topY;
                         towerMouseHighlight.visible = true;
 
-                        towerID = towerIndex;
+                        towerID = k;
+
+                        /* display text and rectangles properly */
+                        towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE \nATTACK";
+                        towerStatsFireBar.scale = new Phaser.Point(metadataForFrame.items[towerID].fireRate * 1.5, 0.6);
+                        towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 1.5, 0.6);
                     }
                 }
 
@@ -201,65 +184,39 @@ function InitializeGame(apg: APGSys): void {
                     towerMouseHighlight.visible = false;
                     towerID = -1;
                     lastClickDelay = 20;
-
-					//clear graphics here if doing global clear
-
                 }
             }
         }
         phaserGameWorld.addChild(towerMouseHighlight);
 
-        // _____ Background Graphic  _______
+        /* Text in highlight object */
+        var towerStatsText: Phaser.Text = new Phaser.Text(apg.g, -85, -85, "", { font: '12px Helvetica', fill: '#C0C0C0' });
+        towerStatsText.update = () => { }
+        towerMouseHighlight.addChild(towerStatsText);
 
-        // This is a small bit of art that will cover up the binary data in the video frame.
-        // It is also the back ground that stat text will be drawn over.
-        var backgroundCoveringBinaryEncoding: Phaser.Sprite = new Phaser.Sprite(apg.g, -640, -320, 'assets/background.png');
-        phaserGameWorld.addChild(backgroundCoveringBinaryEncoding);
-
-        // _____ Stats Text _______
-
-        // This is statistic text.  It will display game logic metadata for the currently selected tower if, in fact, a tower is currently selected.
-        var towerStatsText: Phaser.Text = new Phaser.Text(apg.g, towerMouseHighlight.x, towerMouseHighlight.y, "", { font: '12px Helvetica', fill: '#C0C0C0' });
-        towerStatsText.anchor = new Phaser.Point(1.0, 1.35);
-
-        //The Rectangle representing the fire rate
-        var towerStatsFireBar: Phaser.Graphics = new Phaser.Graphics(apg.g, 0, 0);
-       // var towerStatsFireBar: Phaser.Rectangle = new Phaser.Rectangle(0, 0, 0, 0);
-
-
-        //Showing the game data when the tower is being hovered over
-        towerStatsText.update = () => {
-            if (towerID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
-
-                towerStatsText.x = towerMouseHighlight.x;
-                towerStatsText.y = towerMouseHighlight.y;
-
-                //shows the text
-                towerStatsText.visible = true;
-                towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE: \nATTACK:";
-                
-                //
-                towerStatsFireBar.width = metadataForFrame.items[towerID].fireRate * 100;
-                towerStatsFireBar.height = 10;
-                towerStatsFireBar.x = towerMouseHighlight.x;
-                towerStatsFireBar.y = towerMouseHighlight.y;
-
-				//draws the rectangles
-                towerStatsFireBar.visible = true;
-                towerStatsFireBar.beginFill(0xff000);
-                towerStatsFireBar.drawRect(towerStatsFireBar.x, towerStatsFireBar.y, towerStatsFireBar.width, 100);
-				towerStatsFireBar.endFill();
-                //*/
-            }
-            else {
-                towerStatsText.visible = false;
-				towerStatsFireBar.kill();
-				//towerStatsFireBar.remove();
-                //towerStatsFireBar.visible = false;
+        /* Rectangle representing the fire rate */
+        var towerStatsFireBar: Phaser.Sprite = new Phaser.Sprite(apg.g, -10, -63, 'assets/Rectangle.png');
+        towerStatsFireBar.scale = new Phaser.Point(0.6, 0.6);
+        towerStatsFireBar.tint = 0xFF6961;
+        towerStatsFireBar.update = () => {
+            if (towerStatsFireBar.parent != towerMouseHighlight) {
+                towerStatsFireBar.parent.removeChild(towerStatsFireBar);
+                towerMouseHighlight.addChild(towerStatsFireBar);
             }
         }
-        phaserGameWorld.addChild(towerStatsText);
-        //phaserGameWorld.addChild(towerStatsFireBar);
+        phaserGameWorld.addChild(towerStatsFireBar);
+
+        /* Rectangle representing the attack rate */
+        var towerStatsAttackBar: Phaser.Sprite = new Phaser.Sprite(apg.g, -10, -43, 'assets/Rectangle.png');
+        towerStatsAttackBar.scale = new Phaser.Point(0.6, 0.6);
+        towerStatsAttackBar.tint = 0xE6C76A;
+        towerStatsAttackBar.update = () => {
+            if (towerStatsAttackBar.parent != towerMouseHighlight) {
+                towerStatsAttackBar.parent.removeChild(towerStatsAttackBar);
+                towerMouseHighlight.addChild(towerStatsAttackBar);
+            }
+        }
+        phaserGameWorld.addChild(towerStatsAttackBar);
     }
     // #endregion
 
