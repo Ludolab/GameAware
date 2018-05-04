@@ -310,7 +310,8 @@ function InitializeGame(apg: APGSys): void {
         /*
 
 
-        var enemyMouseHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/EnemyInformationPopup.png');
+        //var enemyMouseHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/'+enemyMetadataForFrame.info[i].enemyName+'Popup.png');
+        var enemyMouseHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/HoverbuggyPopup.png');
         //enemyMouseHighlight.blendMode = PIXI.blendModes.ADD;
         enemyMouseHighlight.anchor = new Phaser.Point(0.4, 0.75);
         enemyMouseHighlight.scale = new Phaser.Point(1, 1);
