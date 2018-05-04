@@ -23,6 +23,12 @@ namespace TowerDefense.Towers
 		/// </summary>
 		public string towerName;
 
+        /// <summary>
+        /// Tag attached to the tower
+        /// </summary>
+        
+        
+
 		/// <summary>
 		/// The size of the tower's footprint
 		/// </summary>
@@ -295,5 +301,16 @@ namespace TowerDefense.Towers
 			bool initialise = current == LevelState.AllEnemiesSpawned || current == LevelState.SpawningEnemies;
 			currentTowerLevel.SetAffectorState(initialise);
 		}
-	}
+
+
+        public Collider getCollider()
+        {
+            return GetComponent<Collider>();
+        }
+
+        private void Start()
+        {
+            tag = "Tower";
+        }
+    }
 }

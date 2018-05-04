@@ -89,6 +89,8 @@ namespace TowerDefense.Level
 			{
 				StartWaves();
 			}
+
+            gameObject.tag = "Wave Manager";
 		}
 
 		/// <summary>
