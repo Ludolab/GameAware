@@ -9,6 +9,9 @@ var APGHelper = (function () {
 function CacheGameAssets(c) {
     c.images('assets', ['hudselect.png', 'blueorb.png', 'background.png']);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
     c.sounds('assets', ['click.mp3']);
 }
 function InitializeGame(apg) {
@@ -17,6 +20,7 @@ function InitializeGame(apg) {
     var lastClickDelay = 0;
     var fireflyID = 0;
     var clickSound = apg.g.add.audio('assets/click.mp3', .4, false);
+<<<<<<< HEAD
     apg.ResetServerMessageRegistry();
     apg.Register("fireflies", function (updatedMetadataForNewFrame) {
         metadataForFrame = updatedMetadataForNewFrame;
@@ -105,10 +109,13 @@ function InitializeGame(apg) {
     var lastClickDelay = 0;
     var fireflyID = 0;
     var clickSound = apg.g.add.audio('assets/click.mp3', .4, false);
+=======
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
     apg.ResetServerMessageRegistry();
     apg.Register("fireflies", function (updatedMetadataForNewFrame) {
         metadataForFrame = updatedMetadataForNewFrame;
     });
+<<<<<<< HEAD
 <<<<<<< HEAD
     {
         var towerID = 0;
@@ -136,6 +143,8 @@ function InitializeGame(apg) {
                         towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 0.75, 0.6);
                     }
 =======
+=======
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
     var fireflyMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
     fireflyMouseHighlight.blendMode = PIXI.blendModes.ADD;
     fireflyMouseHighlight.anchor = new Phaser.Point(.5, .5);
@@ -154,6 +163,9 @@ function InitializeGame(apg) {
                     fireflyMouseHighlight.x = x;
                     fireflyMouseHighlight.y = y;
                     fireflyMouseHighlight.visible = true;
+<<<<<<< HEAD
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
+=======
 >>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
                 }
             }
@@ -164,6 +176,7 @@ function InitializeGame(apg) {
                     lastClickDelay = 20;
                 }
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
         };
         phaserGameWorld.addChild(towerMouseHighlight);
@@ -267,11 +280,16 @@ function InitializeGame(apg) {
                     }
                     waveNumber = enemyMetadataForFrame.waveNumber;
 =======
+=======
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
             else {
                 if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
                     fireflyID = fireflyIndex;
                     clickSound.play();
                     lastClickDelay = 20;
+<<<<<<< HEAD
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
+=======
 >>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
                 }
             }
