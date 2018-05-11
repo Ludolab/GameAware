@@ -8,6 +8,7 @@ var APGHelper = (function () {
 }());
 function CacheGameAssets(c) {
     c.images('assets', ['hudselect.png', 'blueorb.png', 'background.png']);
+<<<<<<< HEAD
     c.sounds('assets', ['click.mp3']);
 }
 function InitializeGame(apg) {
@@ -94,21 +95,21 @@ var APGHelper = (function () {
 }());
 function CacheGameAssets(c) {
     c.images('assets', ['blueorb.png', 'hudselect.png', 'TowerInformationPopup.png', 'background.png', 'HoverbuggyInformationPopup.png', 'HoverbossInformationPopup.png', 'HovercopterInformationPopup.png', 'HovertankInformationPopup.png', 'Rectangle.png']);
+=======
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
     c.sounds('assets', ['click.mp3']);
 }
 function InitializeGame(apg) {
     var phaserGameWorld = apg.w;
-    var lastClickDelay = 0;
-    var clickSound = apg.g.add.audio('assets/click.mp3', .4, false);
-    var serverMetadataForFrame = null;
     var metadataForFrame = null;
-    var enemyMetadataForFrame = null;
+    var lastClickDelay = 0;
+    var fireflyID = 0;
+    var clickSound = apg.g.add.audio('assets/click.mp3', .4, false);
     apg.ResetServerMessageRegistry();
-    apg.Register("server", function (updatedMetadataForNewFrame) {
-        serverMetadataForFrame = updatedMetadataForNewFrame;
-        metadataForFrame = serverMetadataForFrame.towerInfo;
-        enemyMetadataForFrame = serverMetadataForFrame.enemyInfo;
+    apg.Register("fireflies", function (updatedMetadataForNewFrame) {
+        metadataForFrame = updatedMetadataForNewFrame;
     });
+<<<<<<< HEAD
     {
         var towerID = 0;
         var towerMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/TowerInformationPopup.png');
@@ -134,13 +135,36 @@ function InitializeGame(apg) {
                         towerStatsFireBar.scale = new Phaser.Point(metadataForFrame.items[towerID].fireRate * 1.5, 0.6);
                         towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 0.75, 0.6);
                     }
+=======
+    var fireflyMouseHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
+    fireflyMouseHighlight.blendMode = PIXI.blendModes.ADD;
+    fireflyMouseHighlight.anchor = new Phaser.Point(.5, .5);
+    fireflyMouseHighlight.scale = new Phaser.Point(1, 1);
+    fireflyMouseHighlight.update = function () {
+        lastClickDelay--;
+        if (metadataForFrame != null) {
+            var overAFirefly = false;
+            var fireflyIndex = -1;
+            for (var k = 0; k < metadataForFrame.items.length; k++) {
+                var x = APGHelper.ScreenX(metadataForFrame.items[k].x);
+                var y = APGHelper.ScreenY(metadataForFrame.items[k].y);
+                if (Math.abs(apg.g.input.activePointer.x - x) < 48 && Math.abs(apg.g.input.activePointer.y - y) < 48) {
+                    fireflyIndex = k;
+                    overAFirefly = true;
+                    fireflyMouseHighlight.x = x;
+                    fireflyMouseHighlight.y = y;
+                    fireflyMouseHighlight.visible = true;
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
                 }
-                if (!overAtower) {
-                    towerMouseHighlight.visible = false;
-                    towerID = -1;
+            }
+            if (!overAFirefly) {
+                fireflyMouseHighlight.visible = false;
+                if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
+                    fireflyID = -1;
                     lastClickDelay = 20;
                 }
             }
+<<<<<<< HEAD
         };
         phaserGameWorld.addChild(towerMouseHighlight);
         var towerStatsText = new Phaser.Text(apg.g, -85, -85, "", { font: '12px Helvetica', fill: '#C0C0C0' });
@@ -242,11 +266,44 @@ function InitializeGame(apg) {
                         }
                     }
                     waveNumber = enemyMetadataForFrame.waveNumber;
+=======
+            else {
+                if (apg.g.input.activePointer.isDown && lastClickDelay <= 0) {
+                    fireflyID = fireflyIndex;
+                    clickSound.play();
+                    lastClickDelay = 20;
+>>>>>>> parent of 0dee4be... Merge branch 'master' of https://github.com/raegu14/GameAware
                 }
             }
-        };
-        phaserGameWorld.addChild(enemyInformationArea);
-    }
+        }
+    };
+    phaserGameWorld.addChild(fireflyMouseHighlight);
+    var fireflyTargetGraphic = new Phaser.Sprite(apg.g, 0, 0, 'assets/hudselect.png');
+    fireflyTargetGraphic.blendMode = PIXI.blendModes.ADD;
+    fireflyTargetGraphic.anchor = new Phaser.Point(.5, .5);
+    fireflyTargetGraphic.scale = new Phaser.Point(1, 1);
+    fireflyTargetGraphic.update = function () {
+        if (fireflyID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
+            fireflyTargetGraphic.visible = true;
+            fireflyTargetGraphic.x = APGHelper.ScreenX(metadataForFrame.items[fireflyID].x);
+            fireflyTargetGraphic.y = APGHelper.ScreenY(metadataForFrame.items[fireflyID].y);
+        }
+        else
+            fireflyTargetGraphic.visible = false;
+    };
+    phaserGameWorld.addChild(fireflyTargetGraphic);
+    var backgroundCoveringBinaryEncoding = new Phaser.Sprite(apg.g, -640, -320, 'assets/background.png');
+    phaserGameWorld.addChild(backgroundCoveringBinaryEncoding);
+    var fireflyStatsText = new Phaser.Text(apg.g, 20, 10, "", { font: '16px Caveat Brush', fill: '#112' });
+    fireflyStatsText.update = function () {
+        if (fireflyID != -1 && metadataForFrame != null && metadataForFrame != undefined) {
+            fireflyStatsText.visible = true;
+            fireflyStatsText.text = "ID: " + fireflyID + "\nScale " + Math.floor(metadataForFrame.items[fireflyID].scale / 10000 * 48);
+        }
+        else
+            fireflyStatsText.visible = false;
+    };
+    phaserGameWorld.addChild(fireflyStatsText);
 }
 >>>>>>> 78835dadacccb92a976e1b29533f1b3741b3006e
 //# sourceMappingURL=GameLogic.js.map
