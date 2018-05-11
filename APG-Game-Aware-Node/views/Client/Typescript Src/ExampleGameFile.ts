@@ -41,7 +41,7 @@ of the twitch video plugin, which is normally a violation of the browser securit
 // around downloaded to clients before the app launches.
 
 function CacheGameAssets(c: Cacher): void {
-    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png', 'EnemyInformationPopup.png', 'Rectangle.png']);
+    c.images('assets', ['blueorb.png', 'hudselect.png', 'TowerInformationPopup.png', 'background.png', 'HoverbuggyInformationPopup.png', 'HoverbossInformationPopup.png', 'HovercopterInformationPopup.png', 'HovertankInformationPopup.png', 'Rectangle.png']);
 	c.sounds('assets', ['click.mp3']);
 }
 
@@ -174,7 +174,7 @@ function InitializeGame(apg: APGSys): void {
                         /* display text and rectangles properly */
                         towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE \nATTACK";
                         towerStatsFireBar.scale = new Phaser.Point(metadataForFrame.items[towerID].fireRate * 1.5, 0.6);
-                        towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 1.5, 0.6);
+                        towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 0.75, 0.6);
                     }
                 }
 
@@ -224,22 +224,14 @@ function InitializeGame(apg: APGSys): void {
     // #region Enemy
     {
 
-        /*
-        // Setup callbacks with the metadata subsystem.
-        apg.Register<ServerEnemies>("enemies", updatedMetadataForNewFrame => {
-            // We register a simple callback that updates when the video frame has advanced and there is new metadata.
-            // We will use this metadata in game object frame updates to change what is displayed in the overlay.
-            // In theory, it would be more efficient to do the actual updating in this callback, but it's not a priority.
-            enemyMetadataForFrame = updatedMetadataForNewFrame;
-        });
-        */
-
         // Index in the Serverenemies array of the currently selected enemy.  We'll default to showing the first enemy.
         var enemyID: number = 0;
 
         var waveNumber: number = -1;
         var waveImages: Array<Phaser.Sprite> = new Array<Phaser.Sprite>();
         var waveText: Array<Phaser.Text> = new Array<Phaser.Text>();
+
+        var enemyHighlights: Array<Phaser.Sprite> = new Array<Phaser.Sprite>();
 
         //parent graphic to contain enemy graphics
         var enemyInformationArea: Phaser.Sprite = new Phaser.Sprite(apg.g, 800, 75, 'assets/background.png');
@@ -255,12 +247,12 @@ function InitializeGame(apg: APGSys): void {
                         phaserGameWorld.removeChild(waveImages[i]);
                     }
 
+                    var overAenemy: boolean = false;
                     //Create graphics of enemy information
                     for (var i: number = 0; i < enemyMetadataForFrame.info.length; i++) {
-
-                        var enemyInformationPopup: Phaser.Sprite = new Phaser.Sprite(apg.g, enemyInformationArea.x + 20, i * 100 + enemyInformationArea.y + 20, 'assets/EnemyInformationPopup.png');
+                        var enemyInformationPopup: Phaser.Sprite = new Phaser.Sprite(apg.g, enemyInformationArea.x + 20, i * 100 + enemyInformationArea.y + 20, 'assets/' + enemyMetadataForFrame.info[i].enemyName + 'InformationPopup.png');
                         enemyInformationPopup.update = () => {
-                            /*
+                            
                             //on cursor mouseover, go through enemies array and create phaser sprite on top of enemies of matching type
                             if (enemyMetadataForFrame != null) {
                                 var x: number = enemyInformationPopup.x;
@@ -271,32 +263,66 @@ function InitializeGame(apg: APGSys): void {
 
                                 if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
                                     apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
-                                    for (var i: number = 0; i < enemyMetadataForFrame.enemies.length; i++) {
-                                        // We are over a enemy, so record its index.
-                                        enemyIndex = k;
-                                        overAenemy = true;
+                                    enemyID = i;
+                                    overAenemy = true;
+
+                                    console.log(overAenemy);
+
+                                    for (var k: number = 0; k < enemyMetadataForFrame.enemies.length; k++) {
+                                        var enemyHighlight: Phaser.Sprite = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
 
                                         // Center the highlight on this enemy and make it visible.
-                                        enemyMouseHighlight.x = x;
-                                        enemyMouseHighlight.y = y;
-                                        enemyMouseHighlight.visible = true;
+                                        enemyHighlight.x = APGHelper.ScreenX(enemyMetadataForFrame.enemies[k].x);
+                                        enemyHighlight.y = APGHelper.ScreenY(enemyMetadataForFrame.enemies[k].y);
+                                        enemyHighlight.visible = true;
+                                        phaserGameWorld.addChild(enemyHighlight);
 
-                                        enemyID = enemyIndex;
+                                        enemyHighlights.push(enemyHighlight);
+
                                     }
                                 }
-                            }*/
+                            }
                         }
                         phaserGameWorld.addChild(enemyInformationPopup);
 
-                        var enemyInformationText: Phaser.Text = new Phaser.Text(apg.g, 100, 0, "", { font: '12px Helvetica', fill: '#C0C0C0' });
+                        var enemyInformationText: Phaser.Text = new Phaser.Text(apg.g, 100, 10, "", { font: '12px Helvetica', fill: '#C0C0C0' });
                         enemyInformationText.anchor = new Phaser.Point(0, 0);
-                        enemyInformationText.text = enemyMetadataForFrame.info[i].enemyName + "\nHEALTH: " + enemyMetadataForFrame.info[i].health + "\nSPEED: " + enemyMetadataForFrame.info[i].speed + "\nATTACK:" + enemyMetadataForFrame.info[i].attack;
+                        enemyInformationText.text = enemyMetadataForFrame.info[i].enemyName + "\nHealth: " + enemyMetadataForFrame.info[i].health + "\nSpeed: " + enemyMetadataForFrame.info[i].speed + "\nAttack:" + enemyMetadataForFrame.info[i].attack;
                         enemyInformationPopup.addChild(enemyInformationText);
+
+                        /* Rectangle representing the fire rate */
+                        var enemyStatsHealthBar: Phaser.Sprite = new Phaser.Sprite(apg.g, -10, -63, 'assets/Rectangle.png');
+                        enemyStatsHealthBar.scale = new Phaser.Point(0.6, 0.6);
+                        enemyStatsHealthBar.tint = 0xFF6961;
+                        enemyStatsHealthBar.update = () => {
+                            if (enemyStatsHealthBar.parent != enemyInformationPopup) {
+                                enemyStatsHealthBar.parent.removeChild(enemyStatsHealthBar);
+                                enemyInformationPopup.addChild(enemyStatsHealthBar);
+                            }
+                        }
+                        phaserGameWorld.addChild(enemyStatsHealthBar);
+
+                        /* Rectangle representing the attack rate */
+                        var enemyStatsSpeedBar: Phaser.Sprite = new Phaser.Sprite(apg.g, -10, -43, 'assets/Rectangle.png');
+                        towerStatsAttackBar.scale = new Phaser.Point(0.6, 0.6);
+                        towerStatsAttackBar.tint = 0xE6C76A;
+                        towerStatsAttackBar.update = () => {
+                            if (towerStatsAttackBar.parent != towerMouseHighlight) {
+                                towerStatsAttackBar.parent.removeChild(towerStatsAttackBar);
+                                towerMouseHighlight.addChild(towerStatsAttackBar);
+                            }
+                        }
+                        phaserGameWorld.addChild(towerStatsAttackBar);
 
                         waveImages.push(enemyInformationPopup);
                         waveText.push(enemyInformationText);
-
-                        console.log("created something");
+                    }
+                    if (!overAenemy) {
+                        enemyID = -1;
+                        //remove all highlights from array
+                        for (var i: number = 0; i < enemyHighlights.length; i++) {
+                            phaserGameWorld.removeChild(enemyHighlights[i]);
+                        }
                     }
 
                     waveNumber = enemyMetadataForFrame.waveNumber;
