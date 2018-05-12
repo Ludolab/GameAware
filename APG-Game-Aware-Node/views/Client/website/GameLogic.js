@@ -6,7 +6,7 @@ var APGHelper = (function () {
     return APGHelper;
 }());
 function CacheGameAssets(c) {
-    c.images('assets', ['blueorb.png', 'hudselect.png', 'TowerInformationPopup.png', 'background.png', 'HoverbuggyInformationPopup.png', 'HoverbossInformationPopup.png', 'HovercopterInformationPopup.png', 'HovertankInformationPopup.png', 'Rectangle.png']);
+    c.images('assets', ['hudselect.png', 'TowerInformationPopup.png', 'background.png', 'EnemyInformationPopup.png', 'Rectangle.png']);
     c.sounds('assets', ['click.mp3']);
 }
 function InitializeGame(apg) {
@@ -45,7 +45,7 @@ function InitializeGame(apg) {
                         towerID = k;
                         towerStatsText.text = metadataForFrame.items[towerID].name + "\nFIRE RATE \nATTACK";
                         towerStatsFireBar.scale = new Phaser.Point(metadataForFrame.items[towerID].fireRate * 1.5, 0.6);
-                        towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 0.75, 0.6);
+                        towerStatsAttackBar.scale = new Phaser.Point(metadataForFrame.items[towerID].attack * 1.5, 0.6);
                     }
                 }
                 if (!overAtower) {
@@ -85,7 +85,6 @@ function InitializeGame(apg) {
         var waveNumber = -1;
         var waveImages = new Array();
         var waveText = new Array();
-        var enemyHighlights = new Array();
         var enemyInformationArea = new Phaser.Sprite(apg.g, 800, 75, 'assets/background.png');
         enemyInformationArea.anchor = new Phaser.Point(0, 0);
         enemyInformationArea.scale = new Phaser.Point(0.35, 0.9);
@@ -95,64 +94,18 @@ function InitializeGame(apg) {
                     for (var i = 0; i < waveImages.length; i++) {
                         phaserGameWorld.removeChild(waveImages[i]);
                     }
-                    var overAenemy = false;
                     for (var i = 0; i < enemyMetadataForFrame.info.length; i++) {
                         var enemyInformationPopup = new Phaser.Sprite(apg.g, enemyInformationArea.x + 20, i * 100 + enemyInformationArea.y + 20, 'assets/' + enemyMetadataForFrame.info[i].enemyName + 'InformationPopup.png');
                         enemyInformationPopup.update = function () {
-                            if (enemyMetadataForFrame != null) {
-                                var x = enemyInformationPopup.x;
-                                var y = enemyInformationPopup.y;
-                                var scaleX = enemyInformationPopup.scale.x;
-                                var scaleY = enemyInformationPopup.scale.y;
-                                if (apg.g.input.activePointer.x >= x && apg.g.input.activePointer.x <= x + scaleX &&
-                                    apg.g.input.activePointer.y >= y && apg.g.input.activePointer.y <= y + scaleY) {
-                                    enemyID = i;
-                                    overAenemy = true;
-                                    console.log(overAenemy);
-                                    for (var k = 0; k < enemyMetadataForFrame.enemies.length; k++) {
-                                        var enemyHighlight = new Phaser.Sprite(apg.g, 0, 0, 'assets/blueorb.png');
-                                        enemyHighlight.x = APGHelper.ScreenX(enemyMetadataForFrame.enemies[k].x);
-                                        enemyHighlight.y = APGHelper.ScreenY(enemyMetadataForFrame.enemies[k].y);
-                                        enemyHighlight.visible = true;
-                                        phaserGameWorld.addChild(enemyHighlight);
-                                        enemyHighlights.push(enemyHighlight);
-                                    }
-                                }
-                            }
                         };
                         phaserGameWorld.addChild(enemyInformationPopup);
-                        var enemyInformationText = new Phaser.Text(apg.g, 100, 10, "", { font: '12px Helvetica', fill: '#C0C0C0' });
+                        var enemyInformationText = new Phaser.Text(apg.g, 100, 0, "", { font: '12px Helvetica', fill: '#C0C0C0' });
                         enemyInformationText.anchor = new Phaser.Point(0, 0);
-                        enemyInformationText.text = enemyMetadataForFrame.info[i].enemyName + "\nHealth: " + enemyMetadataForFrame.info[i].health + "\nSpeed: " + enemyMetadataForFrame.info[i].speed + "\nAttack:" + enemyMetadataForFrame.info[i].attack;
+                        enemyInformationText.text = enemyMetadataForFrame.info[i].enemyName + "\nHEALTH: " + enemyMetadataForFrame.info[i].health + "\nSPEED: " + enemyMetadataForFrame.info[i].speed + "\nATTACK:" + enemyMetadataForFrame.info[i].attack;
                         enemyInformationPopup.addChild(enemyInformationText);
-                        var enemyStatsHealthBar = new Phaser.Sprite(apg.g, -10, -63, 'assets/Rectangle.png');
-                        enemyStatsHealthBar.scale = new Phaser.Point(0.6, 0.6);
-                        enemyStatsHealthBar.tint = 0xFF6961;
-                        enemyStatsHealthBar.update = function () {
-                            if (enemyStatsHealthBar.parent != enemyInformationPopup) {
-                                enemyStatsHealthBar.parent.removeChild(enemyStatsHealthBar);
-                                enemyInformationPopup.addChild(enemyStatsHealthBar);
-                            }
-                        };
-                        phaserGameWorld.addChild(enemyStatsHealthBar);
-                        var enemyStatsSpeedBar = new Phaser.Sprite(apg.g, -10, -43, 'assets/Rectangle.png');
-                        towerStatsAttackBar.scale = new Phaser.Point(0.6, 0.6);
-                        towerStatsAttackBar.tint = 0xE6C76A;
-                        towerStatsAttackBar.update = function () {
-                            if (towerStatsAttackBar.parent != towerMouseHighlight) {
-                                towerStatsAttackBar.parent.removeChild(towerStatsAttackBar);
-                                towerMouseHighlight.addChild(towerStatsAttackBar);
-                            }
-                        };
-                        phaserGameWorld.addChild(towerStatsAttackBar);
                         waveImages.push(enemyInformationPopup);
                         waveText.push(enemyInformationText);
-                    }
-                    if (!overAenemy) {
-                        enemyID = -1;
-                        for (var i = 0; i < enemyHighlights.length; i++) {
-                            phaserGameWorld.removeChild(enemyHighlights[i]);
-                        }
+                        console.log("created something");
                     }
                     waveNumber = enemyMetadataForFrame.waveNumber;
                 }

@@ -40,7 +40,7 @@ public class GameLogic : MonoBehaviour
 
         // Get information to pass over
         // Tell system to broadcast information
-        //networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
+        networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
         //networking.GetAudienceSys().WriteMetadata("enemies", ei.GetEnemyInformation());
 
         networking.GetAudienceSys().WriteMetadata("server", sm);
