@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TowerDefense.Affectors;
+using TowerDefense.Targetting;
 using TowerDefense.Towers;
 using TowerDefense.Towers.Data;
 using TowerDefense.Towers.Projectiles;
@@ -22,7 +23,7 @@ public class TowerInfo : MonoBehaviour {
         public int scaleX;
         public int scaleY;
         public float attack;
-        public float coolDown;
+        public float radius;
         public float fireRate;
         public string name;
     }
@@ -60,7 +61,7 @@ public class TowerInfo : MonoBehaviour {
         //dyanmically get the towers that exist. Update the tower array
 
         GameObject[] towersObj = GameObject.FindGameObjectsWithTag("Tower");
-        towers = new Tower[24];
+        towers = new Tower[towersObj.Length];
 
         // The towers will be updating their positions and scale in their own update functions.
         // The following section of code will let's the metadata system know that this
@@ -124,6 +125,8 @@ public class TowerInfo : MonoBehaviour {
             AttackAffector attack = towers[k].GetComponentInChildren<AttackAffector>();
             metadataUpdateParms.items[k].attack = attack.projectile.GetComponent<Damager>().damage;
             metadataUpdateParms.items[k].fireRate = attack.fireRate;
+            Targetter target = towers[k].GetComponentInChildren<Targetter>();
+            metadataUpdateParms.items[k].radius = target.effectRadius;
 
             metadataUpdateParms.items[k].name = towers[k].towerName;
         }

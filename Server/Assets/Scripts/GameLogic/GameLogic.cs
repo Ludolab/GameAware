@@ -38,12 +38,9 @@ public class GameLogic : MonoBehaviour
         sm.enemyInfo = ei.GetEnemyInformation();
         sm.towerInfo = ti.GetTowerInformation();
 
-        // Get information to pass over
-        // Tell system to broadcast information
-        //networking.GetAudienceSys().WriteMetadata("towers", ti.GetTowerInformation());
-        //networking.GetAudienceSys().WriteMetadata("enemies", ei.GetEnemyInformation());
+        networking.GetAudienceSys().WriteMetadata<ServerMessage>("server", sm);
+        networking.GetAudienceSys().WriteMetadata<ServerMessage>("server", sm);
 
-        networking.GetAudienceSys().WriteMetadata("server", sm);
     }
 
 }
